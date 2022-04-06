@@ -240,7 +240,7 @@ for i=0:T_Value %For all of the time points in the series, should start at zero 
                     AnaChan=ImageAnalyses{k,:}{2}{1};
                     AnaImage=Img2(:,:,AnaChan);
                     AnaSettings= ImageAnalyses{k,:}{3};
-                    Storage
+%                     Storage
                     switch Analysis
                         case 'Nuc'
                          [bw4,bw4_perim,Label]= NuclearStain(AnaImage,AnaSettings,MiPerPix);   

@@ -80,8 +80,8 @@ CellSize=1; %Scale as needed for different Cells
     ImageAnalyses=    {
                          {{'Nuc'},{1},{4 0.4 0.2},{3},{'Nuc_bw4_perim' [0.8500 0.3250 0.0980]},{true},{}};
                            {{'Cyt'},{2},{4 0.4},{2},{},{false},{'Cytosol'}};
-                        {{'CytWS'},{2},{0.1},{'Cytosol'},{'Cyt_WS_perim' [0.4940, 0.1840, 0.5560]},{true},{}};
-                        {{'Gal8'},{2},{0.1},{'Cytosol'},{'Gal_bw4_Perim' [0.4940, 0.1840, 0.5560]},{true},{}};
+                        {{'CytWS'},{2},{0.1},{},{'Cyt_WS_perim' [0.4940, 0.1840, 0.5560]},{true},{}};
+                        {{'Gal8'},{2},{0.1},{},{'Gal_bw4_Perim' [0.4940, 0.1840, 0.5560]},{true},{}};
          
                             };%Which Image analysis/functions to call. ##NEed to solve problem of secondary analyses like watershed of Nuc and Cytosol or gal8 and cytosol
     
@@ -240,13 +240,15 @@ for i=0:T_Value %For all of the time points in the series, should start at zero 
                     AnaChan=ImageAnalyses{k,:}{2}{1};
                     AnaImage=Img2(:,:,AnaChan);
                     AnaSettings= ImageAnalyses{k,:}{3};
-                    Storage
+%                     Storage
                     switch Analysis
                         case 'Nuc'
-                         [bw4,bw4_perim,Label]= NuclearStain(AnaImage,AnaSettings,MiPerPix);   
+                         [bw4,bw4_perim,Label]= NuclearStain(AnaImage,AnaSettings,MiPerPix);
+                         Nuc_bw4=bw4;
                         case 'Cyt'
                          [bw4,bw4_perim,Label] = Cytosol(AnaImage,AnaSettings,MiPerPix);   
-                                Cyt=AnaImage;               
+                                Cyt=AnaImage; 
+                                Cyt_bw4=bw4;
                         case 'Nuc_Cyt'
                          [bw4,bw4_perim,Label] = Nuc_Cyt(AnaImage,AnaSettings,Cyt,Cyt_bw4,MiPerPix);
                         case 'CytWS'

@@ -79,9 +79,9 @@ CellSize=1; %Scale as needed for different Cells
     
     ImageAnalyses=    {
                          {{'Nuc'},{1},{4 0.4 0.2},{3},{'Nuc_bw4_perim' [0.8500 0.3250 0.0980]},{true},{}};
-                           {{'Cyt'},{2},{4 0.4},{2},{},{false},{'Cytosol'}};
-                        {{'CytWS'},{2},{0.1},{'Cytosol'},{'Cyt_WS_perim' [0.4940, 0.1840, 0.5560]},{true},{}};
-                        {{'Gal8'},{2},{0.1},{'Cytosol'},{'Gal_bw4_Perim' [0.4940, 0.1840, 0.5560]},{true},{}};
+                           {{'Cyt'},{2},{4 0.3},{2},{},{false},{}};
+                        {{'CytWS'},{2},{0.1},{},{'Cyt_WS_perim' [0.4940, 0.1840, 0.5560]},{true},{}};
+                        {{'Gal8'},{2},{0.1},{},{'Gal_bw4_Perim' [0.4940, 0.1840, 0.5560]},{true},{}};
          
                             };%Which Image analysis/functions to call. ##NEed to solve problem of secondary analyses like watershed of Nuc and Cytosol or gal8 and cytosol
     
@@ -133,6 +133,7 @@ CellSize=1; %Scale as needed for different Cells
 
 NumSeries=r.getSeriesCount(); %The number of different wells you imaged
 NumColors=r.getEffectiveSizeC(); %The number of colors of each well you imaged
+
 NumTimepoint=(r.getImageCount())/NumColors; %The number of timepoints you imaged
 NumImg=NumSeries*NumTimepoint*NumColors; %The total number of images, combining everything
 nWorkers = 4;
@@ -182,7 +183,8 @@ for j=ParSplit+nn-2% Number of wells in ND2 File
 %     PositionX = readeromeMeta.getPlanePositionX(CurrSeries,1).value(); %May be useful someday, but not needed here
 %     PositionY = readeromeMeta.getPlanePositionY(CurrSeries,1).value(); %May be useful someday, but not needed yet. Get's the position of the actual image. Useful for checking stuff
     T_Value = r2.getSizeT()-1; %Very important, the timepoints of the images. Returns the total number of timepoints, the -1 is important.
-    
+    SizeX=r2.getSizeX();
+    SizeY=r2.getSizeY();
     %CreateFolders for Baxter to read data
         %##Important work: generalize this folder creation and put into GUI, so
         %that whatever segmentations the user creates can be saved for baxter
@@ -199,7 +201,8 @@ for j=ParSplit+nn-2% Number of wells in ND2 File
 %     mkdir(BaxSegFolderCell);
 
 %     data = bfopen('/path/to/data/file')
-Img=zeros(2048,2048,numPlanes,T_Value+1);
+
+Img=zeros(SizeX,SizeY,numPlanes,T_Value+1);
 for i=0:T_Value
 % Timepoint = num2str(i,'%03.f'); %Creates a string so taht the BioFormats can read it
 iplane=r2.getIndex(0,0,i);
@@ -219,7 +222,7 @@ for i=0:T_Value %For all of the time points in the series, should start at zero 
 %        Img=[];%Creates an empty array for the image ##Check and see if this is necessary or if there's a more efficient way of doing this.
                          
                         BaxterName=strcat('w',Well,'t',Timepoint) ; %Very important, creates a name in the format that Baxter Algorithms prefers
- Img2=Img(:,:,:,i+1);                       
+                        Img2=Img(:,:,:,i+1);                       
                         ImageName=fullfile(BaxWellFolder,BaxterName); %Creates a name for each particular image
                         
             for n=1:numPlanes             
@@ -240,21 +243,31 @@ for i=0:T_Value %For all of the time points in the series, should start at zero 
                     AnaChan=ImageAnalyses{k,:}{2}{1};
                     AnaImage=Img2(:,:,AnaChan);
                     AnaSettings= ImageAnalyses{k,:}{3};
-                    Storage
+%                     Storage
                     switch Analysis
                         case 'Nuc'
-                         [bw4,bw4_perim,Label]= NuclearStain(AnaImage,AnaSettings,MiPerPix);   
+                         [bw4,bw4_perim,Label]= NuclearStain(AnaImage,AnaSettings,MiPerPix);
+                         Nuc_bw4=bw4;
+                         Nuc_bw4_perim=bw4_perim;
                         case 'Cyt'
                          [bw4,bw4_perim,Label] = Cytosol(AnaImage,AnaSettings,MiPerPix);   
-                                Cyt=AnaImage;               
+                                Cyt=AnaImage; 
+                                Cyt_bw4=bw4;
+                                Cyt_bw4_perim=bw4_perim;
                         case 'Nuc_Cyt'
                          [bw4,bw4_perim,Label] = Nuc_Cyt(AnaImage,AnaSettings,Cyt,Cyt_bw4,MiPerPix);
                         case 'CytWS'
                          [Label,bw4_perim] = CytNucWaterShed(Nuc_bw4,Cyt,Cyt_bw4);
+                         CytWS_Label=Label;
+                         CytWS_bw4_perim = bw4_perim;
                         case 'Gal8'    
                          [bw4_perim,bw4,Label] = Gal8(AnaImage,AnaSettings,Cyt_bw4,MiPerPix);
+                         Gal8_Label=Label;
+                         Gal8_bw4_perim = bw4_perim;
+                         Gal8_bw4 = bw4;
+                    end
                     
-                     end
+
                     if ~isempty(ImageAnalyses{k,:}{7}) 
                        for i = 1
                         Varnames{i} = matlab.lang.makeValidName(ImageAnalyses{k,:}{7}{i});
@@ -266,9 +279,10 @@ for i=0:T_Value %For all of the time points in the series, should start at zero 
                         
                     end    
                     if ~isempty(ImageAnalyses{k,:}{4})
-                                    Img_eq=AnaImage;
+                                    Img_eq=imadjust(AnaImage);
                                     RGBExportImage(:,:,ImageAnalyses{k,:}{4}{1})=Img_eq;
                     end
+                  
                     if ImageAnalyses{k,:}{6}{1}
                                     SegDir=fullfile(strcat(SegDirectory,Analysis,'_',num2str(k)),Well);
                                         if ~exist(SegDir,'file')
@@ -296,12 +310,14 @@ for i=0:T_Value %For all of the time points in the series, should start at zero 
              if  logical(MakeExampleImage)               
                         
                     %##Need to add more if statements here
+%                     RGBExportImage=uint8(RGBExportImage);
+%                     RGBExportImage
                     OverlayName=fullfile(OverlaidDirectory,BaxterName);
                     imwrite(RGBExportImage, strcat(OverlayName,'.tif'),'tif');
                     RGBExportImage=[];
              end
            
-    
+            RGBExportImage=[];
                 %% Measure Image Data
             %##Write Code here that uses parameters set in the GUI to take
             %all of the data we'd be interested in analyzing. Will probably

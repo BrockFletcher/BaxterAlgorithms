@@ -240,13 +240,15 @@ for i=0:T_Value %For all of the time points in the series, should start at zero 
                     AnaChan=ImageAnalyses{k,:}{2}{1};
                     AnaImage=Img2(:,:,AnaChan);
                     AnaSettings= ImageAnalyses{k,:}{3};
-                    Storage
+%                     Storage
                     switch Analysis
                         case 'Nuc'
-                         [bw4,bw4_perim,Label]= NuclearStain(AnaImage,AnaSettings,MiPerPix);   
+                         [bw4,bw4_perim,Label]= NuclearStain(AnaImage,AnaSettings,MiPerPix);
+                         Nuc_bw4=bw4;
                         case 'Cyt'
                          [bw4,bw4_perim,Label] = Cytosol(AnaImage,AnaSettings,MiPerPix);   
-                                Cyt=AnaImage;               
+                                Cyt=AnaImage; 
+                                Cyt_bw4=bw4;
                         case 'Nuc_Cyt'
                          [bw4,bw4_perim,Label] = Nuc_Cyt(AnaImage,AnaSettings,Cyt,Cyt_bw4,MiPerPix);
                         case 'CytWS'
