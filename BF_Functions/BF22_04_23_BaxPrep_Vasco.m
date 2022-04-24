@@ -202,7 +202,7 @@ iplane=r2.getIndex(0,0,i);
 end
 Img=uint16(Img);
 
-for i=0:T_Value %For all of the time points in the series, should start at zero if T_Value has -1 built in, which it should
+for i=0:T_Va lue %For all of the time points in the series, should start at zero if T_Value has -1 built in, which it should
             %Set up the particular timepoint image
         Timepoint = num2str(i,'%03.f'); %Creates a string so taht the BioFormats can read it
 %        iplane=reader.getIndex(0,0,i); %Gets the particular timepoint image, so now we're in a particular well at a particular timepoint
