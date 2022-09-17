@@ -15,21 +15,21 @@ for k =1:length(ImageAnalyses)
             case 'Nuc'
                 [bw4,bw4_perim,Label,Data]= NuclearStain(AnaImage,AnaSettings,MiPerPix);
             case 'NucPlus'
-                CytChan=AnaSettings{4};
+                CytChan=AnaSettings{2};
                 Cyt=Img2(:,:,CytChan);
                 [bw4,bw4_perim,Label,Data]= Nuc_ConsiderCyt(AnaImage,AnaSettings,MiPerPix,Cyt);    
             case 'Cyt'
                 [bw4,bw4_perim,Label,Data] = Cytosol(AnaImage,AnaSettings,MiPerPix);
             case 'CytWS'
-                NucChan=ImageAnalyses{k,:}{3}{1};
-                CytChan=ImageAnalyses{k,:}{3}{2};
+                NucChan=AnaSettings{1};
+                CytChan=AnaSettings{2};
                 Cyt=LiveData{CytChan}.AnaImage;
                 Nuc_bw4=LiveData{NucChan}.bw4;
                 Cyt_bw4=LiveData{CytChan}.bw4;
                 [bw4,bw4_perim,Label,Data] = CytNucWaterShed(Nuc_bw4,Cyt,Cyt_bw4,AnaSettings);
             case 'Gal8'
-                CytChan=ImageAnalyses{k,:}{3}{2};
-                Cyt_bw4=LiveData{CytChan}.bw4;
+                CytPass=AnaSettings{2};
+                Cyt_bw4=LiveData{CytPass}.bw4;
                 [bw4_perim,bw4,Label,Data] = Gal8(AnaImage,AnaSettings,Cyt_bw4,MiPerPix);
              case 'Drug'
                 [bw4,bw4_perim,Label,Data] = Drug(AnaImage,AnaSettings,MiPerPix);  
@@ -39,6 +39,7 @@ for k =1:length(ImageAnalyses)
         LiveData{k}.bw4_perim = bw4_perim;
         LiveData{k}.Label=Label;
         LiveData{k}.Data=Data;
+        LiveData{k}.Funct=Analysis;
 
         if ImageAnalyses{k,:}{6}{1} %Export Baxter STuff
             SegDir=fullfile(strcat(SegDirectory,Analysis,'_',num2str(k)),Well);

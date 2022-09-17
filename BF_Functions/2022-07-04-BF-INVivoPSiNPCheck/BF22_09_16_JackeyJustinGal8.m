@@ -74,10 +74,10 @@ BitDepth=12;
 %                         {{'Cyt'},   {1},{1 0.175},   {1},    {},{true},{}};
 %                          {{'Nuc'},{1},{1 0.02},{3},{'Nuc_bw4_perim' [0.8500 0.3250 0.0980]},{true},{}};
                           {{'Cyt'},   {2},{1 0.08},   {2},    {},{false},{[0 0.2]}};  
-                          {{'NucPlus'},{1},{3 0.05 1 2 [20 80]},  {3},    {[1 0 1]},{true},{[0 0.05]}};                        
-                          {{'CytWS'}, {2},{2 1 8},      {},     {[0 0 1]},{true},{[0 0.2]}};
-                          {{'Gal8'},  {2},{0.05 2},  {},     {[1 0 0]},{true},{[0 0.2]}};
-                          {{'Gal8'},  {3},{0.1 2},  {1},     {[0 1 1]},{true},{[0.1 0.25]}};
+                          {{'NucPlus'},{1},{4 2 1 0.1 [20 80]},  {3},    {[0 0 1]},{true},{[0 0.05]}};                        
+                          {{'CytWS'}, {2},{2 1 8},      {},     {[0 1 1]},{true},{[0 0.2]}};
+                          {{'Gal8'},  {2},{0.1 3},  {},     {[1 0 1]},{true},{[0 0.2]}};
+                          {{'Gal8'},  {3},{0.1 3},  {1},     {[1 1 0]},{true},{[0.1 0.25]}};
 %                          {{'Drug'},  {3},{0.9},      {1},    {[0.8500 0.3250 0.0980]},{true},{}};
 %                         {{'Nuc'},{1},{2 0.2},{3},{'Nuc_bw4_perim' [0.8500 0.3250 0.0980]},{true},{}};
 %                         {{'Cyt'},{2},{1 0.1},{2},{},{true},{}};
@@ -86,7 +86,7 @@ BitDepth=12;
 %                         {{'Cyt'},{2},{4 0.2},{1},{},{true},{}};
 %                         {{'Gal8'},{2},{0.004 2},{},{},{true},{}};
                             };%Which Image analysis/functions to call. 
-    CytosolicPass=1; % Which Row of ImageAnalyses would you like to orient everything to? i.e. what is the cytosolic plane, preferable per-cell
+    CytosolicPass=3; % Which Row of ImageAnalyses would you like to orient everything to? i.e. what is the cytosolic plane, preferable per-cell
     
     %Here's a key to what each cell represents:
     %{{'Analysis Program'},{Image Plane Number to analyze},{Paramter1 Parameter2},{Output Image Color (1=r 2=g 3=b},{},{Export a Segmented Image? True or False},{}}
@@ -180,7 +180,7 @@ AllData4={}; %Blank for Parfor CompSci reasons
                     end
                     end
                     AllData2={};%Clear because parfor 
-                    for i=16:T_Value %For all of the time points in the series, should start at zero if T_Value has -1 built in, which it should
+                    for i=17:T_Value %For all of the time points in the series, should start at zero if T_Value has -1 built in, which it should
                         Img2=zeros(SizeY,SizeX,numPlanes,'uint16');  %Make a blank shell for the images  
                                 iplane=r2.getIndex(0,0,i);
                                 for n=1:numPlanes         

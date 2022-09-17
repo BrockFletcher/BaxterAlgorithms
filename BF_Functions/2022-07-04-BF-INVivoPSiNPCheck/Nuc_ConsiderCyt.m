@@ -8,7 +8,7 @@ function [Nuc_bw4,Nuc_bw4_perim,NucLabel,Data] = Nuc_ConsiderCyt(Img,AnaSettings
             NucErodeDisk2=strel('square',round(8*(0.34/MiPerPix)));
             NucCloseDisk=strel('disk',round(4*(0.34/MiPerPix)));    
             Low=AnaSettings{1};
-            Max=AnaSettings{2};
+            Max=AnaSettings{4};
             Scaling=AnaSettings{3};
    
             

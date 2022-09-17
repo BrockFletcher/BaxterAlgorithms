@@ -20,7 +20,7 @@ for AnaPass=1:length(LiveData)
 %     LabelMax=max(LiveData{AnaPass,1}.Label,[],'all');
     DataMask=gpuArray(LiveData{AnaPass,1}.Label); %PROJECT: Make so it is flexible with regards to GPU
 %     DataMask=gpuArray(DataMask);  
-    
+    AnaFunct=LiveData{AnaPass,1}.Funct;
     for ImgPlane=1:length(Img2(1,1,:))
         pass=pass+1;
         DataImage=Img2(:,:,ImgPlane);
@@ -47,6 +47,7 @@ for AnaPass=1:length(LiveData)
         [stats.Cell]=deal(CellBody2{:});
         [stats.AnaPass]=deal(AnaPass);
         [stats.ImgPlane]=deal(ImgPlane);
+        [stats.AnaProgram]=deal(AnaFunct);
         Data=struct2table(stats);
         if ~exist('TidyFeat','var')
             TidyFeat=Data;

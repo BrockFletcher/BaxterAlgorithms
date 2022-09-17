@@ -7,14 +7,13 @@ function [Gal_bw_Perim,Gal8Quant3,Gal_Label,Data] = Gal8(Img,AnaSettings,CytPos,
             Gal8OutlineDisk=strel('disk',round(3*(0.34/MiPerPix)));
 Gal8MinThreshold=AnaSettings{1};
 Gal8_Img=wiener2(Img);
-Gal8TH=imgaussfilt(Gal8_Img,0.5);
-Gal8TH=imtophat(Gal8TH,Gal8TophatDisk);
+Gal8TH=imtophat(Gal8_Img,Gal8TophatDisk);
 Gal8Open=imopen(Gal8TH,Gal8OpenDisk);
 
 Gal8MinValue= Gal8MinThreshold*intmax(class(Img));
 Gal8Quant2=Gal8Open-Gal8MinValue;
 Gal8Quant2(Gal8Quant2<=0)=0;
-Gal8Quant3=bwareaopen(Gal8Quant2,3);
+Gal8Quant3=bwareaopen(Gal8Quant2,4);
 % Gal8Quant3(~Cyt_WS)=0;
 Gal8Quant3(~CytPos)=0;
 Gal8Quant3=imdilate(Gal8Quant3,Gal8DilateDisk);
