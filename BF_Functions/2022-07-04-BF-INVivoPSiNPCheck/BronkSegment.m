@@ -9,6 +9,7 @@ for k =1:length(ImageAnalyses)
         AnaChan=ImageAnalyses{k,:}{2}{1};
         AnaImage=Img2(:,:,AnaChan);
         AnaSettings= ImageAnalyses{k,:}{3};
+        ImMaxBright= ImageAnalyses{k,:}{7}{:};
 
         switch Analysis
             case 'Nuc'
@@ -51,7 +52,7 @@ for k =1:length(ImageAnalyses)
         if logical(MakeCompImage) %Make RGB Example IMage
             if ~isempty(ImageAnalyses{k,:}{4})
                 ImColor=ImageAnalyses{k,:}{4}{1};
-                CompImage(:,:,ImColor)=imadjust(AnaImage,[0 Data{1}],[]);
+                CompImage(:,:,ImColor)=imadjust(AnaImage,ImMaxBright,[]);
             end
         end
     end

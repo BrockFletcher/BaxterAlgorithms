@@ -31,10 +31,10 @@ function [bw4,Cyt_WS_perim,Cyt_WS,Data] = CytNucWaterShed(Nuc_bw4,Cyt,cyt_bw4,An
     bw4=imbinarize(Cyt_WS);
     Cyt_WS_perim = imdilate(bwperim(Cyt_WS),strel('disk',1));
      rgb=label2rgb(Cyt_WS);
-    figure,
-    imshow(imadjust(h_c_min))
-     figure,
-    imshow(rgb)
+%     figure,
+%     imshow(imadjust(h_c_min))
+%      figure,
+%     imshow(rgb)
     Data = {};
 end
 

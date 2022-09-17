@@ -3,10 +3,11 @@
     %User Defines location of Image file and location of directory to
     %export to.
 clc, clear, close all
-ImgFile=char("D:\Dropbox (VU Basic Sciences)\Duvall Confocal\Duvall Lab\Brock Fletcher\2022-07-01-PSiNP Systemic QC\48hr-PSiNP-SystemicCheck001.nd2");
+r=bfGetReader();
+ImgFile=char('D:\Dropbox (VU Basic Sciences)\Duvall Confocal\Duvall Lab\Jackey\2022-09-15-Gal8-ConjugatesChloroquine\220915-Gal8-Jackey001.nd2');
 r = loci.formats.Memoizer(bfGetReader(),0);
 r.setId(ImgFile);
-exportdir=char('D:\Dropbox (VU Basic Sciences)\Duvall Confocal\Duvall Lab\Brock Fletcher\2022-07-01-PSiNP Systemic QC\Analysis');
+exportdir=char('D:\Dropbox (VU Basic Sciences)\Duvall Confocal\Duvall Lab\Jackey\2022-09-15-Gal8-ConjugatesChloroquine\Analysis\Setup');
 if ~exist(exportdir,'file')
 mkdir(exportdir);
 end

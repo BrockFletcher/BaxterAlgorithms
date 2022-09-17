@@ -2,10 +2,10 @@
 %% Image Folder Location 
     %User Defines location of Image file and location of directory to
     %export to.
-clc, clear all, close all
+clc, clear, close all
 r=bfGetReader();
-ImgFile=char('D:\Dropbox (VU Basic Sciences)\Duvall Confocal\Duvall Lab\Jackey\2022-09-15-Gal8-ConjugatesChloroquine\220915-Gal8-Jackey001.nd2');
-r = loci.formats.Memoizer(r);
+ImgFile=char('D:\Dropbox (VU Basic Sciences)\Duvall Confocal\Duvall Lab\Jackey\2022-09-15-Gal8-ConjugatesChloroquine\220915-Gal8-Jackey002.nd2');
+r = loci.formats.Memoizer(bfGetReader(),0);
 r.setId(ImgFile);
 exportdir=char('D:\Dropbox (VU Basic Sciences)\Duvall Confocal\Duvall Lab\Jackey\2022-09-15-Gal8-ConjugatesChloroquine\Analysis\Setup');
 if ~exist(exportdir,'file')
@@ -55,8 +55,8 @@ BitDepth=12;
 
 %% Analysis Functions
 %Input Planes
-    numPlanes=2; %Which image Planes to analyze ##Integrate with GUI 
-    BaxExport=true; %Do you wish to export images to folder so they can be analyzed using BaxterAlgorithms? #Integrate with GUI.
+    numPlanes=3; %Which image Planes to analyze ##Integrate with GUI 
+    BaxExport=false; %Do you wish to export images to folder so they can be analyzed using BaxterAlgorithms? #Integrate with GUI.
     MakeCompImage=true;
     Parallelize=true;
 %         MakeCompImage is useful for storing your segements for quick
@@ -71,11 +71,14 @@ BitDepth=12;
    
     ImageAnalyses=    {
 %                         {{'NucPlus'},{1},{2 0.03 1 2 [20 80]},  {3},    {[1 0 1]},{true},{}};
-                        {{'Cyt'},   {2},{1 0.175},   {2},    {[1 0 1]},{true},{}};
-%                         {{'Cyt'},   {2},{1 0.175},   {1},    {[0 1 1]},{true},{}};  
-%                         {{'CytWS'}, {2},{1 2 8},      {},     {[0 1 1]},{true},{}};
-%                         {{'Gal8'},  {2},{0.05 2},  {},     {[0.9290 0.6940 0.1250]},{true},{}};
-%                         {{'Drug'},  {3},{0.9},      {1},    {[0.8500 0.3250 0.0980]},{true},{}};
+%                         {{'Cyt'},   {1},{1 0.175},   {1},    {},{true},{}};
+%                          {{'Nuc'},{1},{1 0.02},{3},{'Nuc_bw4_perim' [0.8500 0.3250 0.0980]},{true},{}};
+                          {{'Cyt'},   {2},{1 0.08},   {2},    {},{false},{[0 0.2]}};  
+                          {{'NucPlus'},{1},{3 0.05 1 2 [20 80]},  {3},    {[1 0 1]},{true},{[0 0.05]}};                        
+                          {{'CytWS'}, {2},{2 1 8},      {},     {[0 0 1]},{true},{[0 0.2]}};
+                          {{'Gal8'},  {2},{0.05 2},  {},     {[1 0 0]},{true},{[0 0.2]}};
+                          {{'Gal8'},  {3},{0.1 2},  {1},     {[0 1 1]},{true},{[0.1 0.25]}};
+%                          {{'Drug'},  {3},{0.9},      {1},    {[0.8500 0.3250 0.0980]},{true},{}};
 %                         {{'Nuc'},{1},{2 0.2},{3},{'Nuc_bw4_perim' [0.8500 0.3250 0.0980]},{true},{}};
 %                         {{'Cyt'},{2},{1 0.1},{2},{},{true},{}};
 %                         {{'Gal8'},{2},{0.01},{},{'Gal_bw4_Perim' [0.4940, 0.1840, 0.5560]},{true},{}};
@@ -83,7 +86,7 @@ BitDepth=12;
 %                         {{'Cyt'},{2},{4 0.2},{1},{},{true},{}};
 %                         {{'Gal8'},{2},{0.004 2},{},{},{true},{}};
                             };%Which Image analysis/functions to call. 
-    CytosolicPass=2; % Which Row of ImageAnalyses would you like to orient everything to? i.e. what is the cytosolic plane, preferable per-cell
+    CytosolicPass=1; % Which Row of ImageAnalyses would you like to orient everything to? i.e. what is the cytosolic plane, preferable per-cell
     
     %Here's a key to what each cell represents:
     %{{'Analysis Program'},{Image Plane Number to analyze},{Paramter1 Parameter2},{Output Image Color (1=r 2=g 3=b},{},{Export a Segmented Image? True or False},{}}
@@ -103,7 +106,7 @@ BitDepth=12;
     % a single well, or only a selected list of wells and timepoints.
     
     customrun=false; %False analyzes all the wells, true analyzes only select few wells
- FastRun=8;
+ FastRun=6;
     if customrun
     NumSeries=FastRun; % #PROJECT: This will need to be modified to allow selected wells to run
 
@@ -142,14 +145,14 @@ NumImg=NumSeries*NumTimepoint*NumColors; %The total number of images, combining 
                  
             end
     else
-        nWorkers = 1;
+        nWorkers = 8;
     end
     
     ParSplit=[1:nWorkers:NumSeries]; %This splits everything so that it can be parrallelized even though OME does not support Parfor. Basically, we make a list of which cores will handle which wells ahead of time.
 
 %% Analysis Program 
 AllData4={}; %Blank for Parfor CompSci reasons
-   for nn = 1 : nWorkers % Initialize logging at INFO level
+      parfor nn = 1 : nWorkers % Initialize logging at INFO level
         bfInitLogging('INFO'); % Initialize a new reader per worker as Bio-Formats is not thread safe
         r2 = javaObject('loci.formats.Memoizer', bfGetReader(), 0); % Initialization should use the memo file cached before entering the parallel loop
         r2.setId(ImgFile);
@@ -163,12 +166,10 @@ AllData4={}; %Blank for Parfor CompSci reasons
                 %Prep Metadata
                 CurrSeries=j; %The current well that we're looking at
                 r2.setSeries(CurrSeries); %##uses BioFormats function, can be swapped with something else (i forget what) if it's buggy with the GUI
-                fname = r2.getSeries %gets the name of the series using BioFormats
+                fname = r2.getSeries; %gets the name of the series using BioFormats
                 Well=num2str(fname,'%05.f'); %Formats the well name for up to 5 decimal places of different wells, could increase but 5 already feels like overkill 
-                T_Value = r2.getSizeT()-1; %Very important, the timepoints of the images. Returns the total number of timepoints, the -1 is important.
-%         FileLocation=r2.getCurrentFile;
-%         FileTest=r2.getSeriesMetadata
-                %                 T_Value = 1
+%                 T_Value = r2.getSizeT()-1; %Very important, the timepoints of the images. Returns the total number of timepoints, the -1 is important.
+                T_Value = 17
                 SizeX=r2.getSizeX(); %Number of pixels in image in X dimension
                 SizeY=r2.getSizeY(); %Number of pixels in image in Y Dimension
                     
@@ -179,7 +180,7 @@ AllData4={}; %Blank for Parfor CompSci reasons
                     end
                     end
                     AllData2={};%Clear because parfor 
-                    for i=0:T_Value %For all of the time points in the series, should start at zero if T_Value has -1 built in, which it should
+                    for i=16:T_Value %For all of the time points in the series, should start at zero if T_Value has -1 built in, which it should
                         Img2=zeros(SizeY,SizeX,numPlanes,'uint16');  %Make a blank shell for the images  
                                 iplane=r2.getIndex(0,0,i);
                                 for n=1:numPlanes         
@@ -263,8 +264,6 @@ AllData4={}; %Blank for Parfor CompSci reasons
 [ExportParamNames] = ParamNames(numPlanes); %Export the names of the parameters used for analysis
 Test=vertcat(AllData4{1:end});
 Tablebig = sortrows(vertcat(Test{:}),[9,10,11,12,13]);
-Tablebig.SumInt=Tablebig{:,1}.*Tablebig{:,6};
-G = groupsummary(Tablebig,{'WellNum' 'TimeNum' 'AnaPass' 'ImgPlane'},'sum');
 % IntensityExport=array2table(TPs,'VariableNames',ExportParamNames); %Make a table with all of the data
 % ExcelName=fullfile(RunDirectory,strcat(run,'.xlsx')); %Prepare excel file name
 % StructName=fullfile(RunDirectory,strcat(run,'.mat'));
@@ -272,6 +271,3 @@ G = groupsummary(Tablebig,{'WellNum' 'TimeNum' 'AnaPass' 'ImgPlane'},'sum');
 % 
 % writetable(IntensityExport,ExcelName) %Write Excel file of all analysis Data
 % save(StructName, 'StructOut','-v7.3')
-
-ExcelNameperWell=fullfile(RunDirectory,strcat('Well',run,'.xlsx')); %Prepare excel file name
- writetable(G,ExcelNameperWell) %Write Excel file of all analysis Data
