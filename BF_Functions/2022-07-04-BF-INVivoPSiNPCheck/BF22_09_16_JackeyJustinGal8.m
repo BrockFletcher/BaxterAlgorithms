@@ -4,10 +4,10 @@
     %export to.
 clc, clear, close all
 r=bfGetReader();
-ImgFile=char('D:\Dropbox (VU Basic Sciences)\Duvall Confocal\Duvall Lab\Jackey\2022-09-15-Gal8-ConjugatesChloroquine\220915-Gal8-Jackey002.nd2');
+ImgFile=char('D:\Dropbox (VU Basic Sciences)\Duvall Confocal\Duvall Lab\Jackey\2022-09-15-Gal8-ConjugatesChloroquine\220915-Gal8-Jackey003.nd2');
 r = loci.formats.Memoizer(bfGetReader(),0);
 r.setId(ImgFile);
-exportdir=char('D:\Dropbox (VU Basic Sciences)\Duvall Confocal\Duvall Lab\Jackey\2022-09-15-Gal8-ConjugatesChloroquine\Analysis\Setup');
+exportdir=char('D:\Dropbox (VU Basic Sciences)\Duvall Confocal\Duvall Lab\Jackey\2022-09-15-Gal8-ConjugatesChloroquine\Analysis\Outputs\Jackey003');
 if ~exist(exportdir,'file')
 mkdir(exportdir);
 end
@@ -168,8 +168,8 @@ AllData4={}; %Blank for Parfor CompSci reasons
                 r2.setSeries(CurrSeries); %##uses BioFormats function, can be swapped with something else (i forget what) if it's buggy with the GUI
                 fname = r2.getSeries; %gets the name of the series using BioFormats
                 Well=num2str(fname,'%05.f'); %Formats the well name for up to 5 decimal places of different wells, could increase but 5 already feels like overkill 
-%                 T_Value = r2.getSizeT()-1; %Very important, the timepoints of the images. Returns the total number of timepoints, the -1 is important.
-                T_Value = 17
+                T_Value = r2.getSizeT()-1; %Very important, the timepoints of the images. Returns the total number of timepoints, the -1 is important.
+%                 T_Value = 17
                 SizeX=r2.getSizeX(); %Number of pixels in image in X dimension
                 SizeY=r2.getSizeY(); %Number of pixels in image in Y Dimension
                     
@@ -180,7 +180,7 @@ AllData4={}; %Blank for Parfor CompSci reasons
                     end
                     end
                     AllData2={};%Clear because parfor 
-                    for i=17:T_Value %For all of the time points in the series, should start at zero if T_Value has -1 built in, which it should
+                    for i=0:T_Value %For all of the time points in the series, should start at zero if T_Value has -1 built in, which it should
                         Img2=zeros(SizeY,SizeX,numPlanes,'uint16');  %Make a blank shell for the images  
                                 iplane=r2.getIndex(0,0,i);
                                 for n=1:numPlanes         
@@ -261,13 +261,14 @@ AllData4={}; %Blank for Parfor CompSci reasons
     
 %% Write Analysis Data to File
 [TPs] = CumCell3(AllData4); %Custom Function to combine weird data format from parfor Loop
-[ExportParamNames] = ParamNames(numPlanes); %Export the names of the parameters used for analysis
+% [ExportParamNameSs] = ParamNames(numPlanes); %Export the names of the parameters used for analysis
 Test=vertcat(AllData4{1:end});
 Tablebig = sortrows(vertcat(Test{:}),[9,10,11,12,13]);
 % IntensityExport=array2table(TPs,'VariableNames',ExportParamNames); %Make a table with all of the data
-% ExcelName=fullfile(RunDirectory,strcat(run,'.xlsx')); %Prepare excel file name
-% StructName=fullfile(RunDirectory,strcat(run,'.mat'));
-% StructOut=cell2struct(TPs,ExportParamNames,2);
-% 
-% writetable(IntensityExport,ExcelName) %Write Excel file of all analysis Data
+ ExcelName=fullfile(RunDirectory,strcat(run,'.txt')); %Prepare excel file name
+ MatSaveName=fullfile(RunDirectory,strcat(run,'.mat'));
+ %  StructName=fullfile(RunDirectory,strcat(run,'.mat'));
+%  StructOut=cell2struct(TPs,ExportParamNames,2);
+save(MatSaveName,'Tablebig')
+writetable(Tablebig,ExcelName) %Write Excel file of all analysis Data
 % save(StructName, 'StructOut','-v7.3')
