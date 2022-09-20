@@ -3,10 +3,10 @@
 clc, clear, close all
 
 %ImgFile=char("Z:\Dropbox (VU Basic Sciences)\Duvall Confocal\Duvall Lab\Brock Fletcher\2021-09-08\DoseResponse\Gal8\BF_Gal8Overnight_Test003.nd2");
-ImgFile=char("D:\Dropbox (VU Basic Sciences)\Duvall Confocal\Duvall Lab\Isa\2021-10-02-BigPRoteinScreen\20211002BigProteinScreen001.nd2");
+ImgFile=char("D:\Dropbox (VU Basic Sciences)\Duvall Confocal\Duvall Lab\Brock Fletcher\220208_Cryogel3-4-InVivo_F480-Arg1_CoIF\Cryogel-4\220215_GoodImaging\PBS-10\PBS-10_20x_10Positions_1.czi");
 r = loci.formats.Memoizer(bfGetReader(),0);
 r.setId(ImgFile);
-exportdir=char('D:\Dropbox (VU Basic Sciences)\Duvall Confocal\Duvall Lab\Brock Fletcher\2021-09-08\DoseResponse\Gal8\Analysis\Test2');
+exportdir=char('D:\Dropbox (VU Basic Sciences)\Duvall Confocal\Duvall Lab\Brock Fletcher\220208_Cryogel3-4-InVivo_F480-Arg1_CoIF\Cryogel-4\220215_GoodImaging\PBS-10\BF_Export');
 if ~exist(exportdir,'file')
 mkdir(exportdir);
 end
@@ -163,7 +163,7 @@ WellEnd=WellEnd-1;
 % end
 %WriteGUI so that first step edits below, then "go" button runs this all,
 %or "test" button runs just selected image in the series
-parfor nn = 1 : nWorkers
+for nn = 1 : nWorkers
     % Initialize logging at INFO level
     bfInitLogging('INFO');
     % Initialize a new reader per worker as Bio-Formats is not thread safe
