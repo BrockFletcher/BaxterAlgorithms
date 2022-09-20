@@ -4,10 +4,10 @@
     %export to.
 clc, clear, close all
 r=bfGetReader();
-ImgFile=char('D:\Dropbox (VU Basic Sciences)\Duvall Confocal\Duvall Lab\Jackey\2022-09-15-Gal8-ConjugatesChloroquine\220915-Gal8-Jackey003.nd2');
+ImgFile=char('D:\Dropbox (VU Basic Sciences)\Duvall Confocal\Duvall Lab\Jackey\2022-09-15-Gal8-ConjugatesChloroquine\220915-Gal8-Jackey001.nd2');
 r = loci.formats.Memoizer(bfGetReader(),0);
 r.setId(ImgFile);
-exportdir=char('D:\Dropbox (VU Basic Sciences)\Duvall Confocal\Duvall Lab\Jackey\2022-09-15-Gal8-ConjugatesChloroquine\Analysis\Outputs\Jackey003');
+exportdir=char('D:\Dropbox (VU Basic Sciences)\Duvall Confocal\Duvall Lab\Jackey\2022-09-15-Gal8-ConjugatesChloroquine\Analysis\Outputs\Jackey001');
 if ~exist(exportdir,'file')
 mkdir(exportdir);
 end
