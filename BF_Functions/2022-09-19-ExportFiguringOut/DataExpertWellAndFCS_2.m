@@ -15,7 +15,7 @@ WellKey=[        1	2	3	4	5	6	7	8	9	10	11	12	13	14	15	16	17	18	19	20	21	22	23	24	
 %% Prep Code 
 run=char(datetime(clock),"yyyy-MM-dd-HH-mm-ss"); 
 TestTable2=DataTable;
-InputTable=TestTable2;
+InputTable=TestTable2(1:30000,:);
 
 
 PreppedTable=removevars(InputTable,["Centroid","BoundingBox"]);
@@ -65,19 +65,13 @@ StatsCellAna=unstack(PerCellDataAnaPlane,[7:width(PerCellDataAnaPlane)],{'ImgPla
 CellWellTimeAna=join(PerCellDataAna,StatsCellAna,'Keys',[1 2 3 4 5]);
 
 FlowbyCell=unstack(CellWellTimeAna,[6:width(CellWellTimeAna)],{'AnaPass'});
-% FlowbyCell(:,7:end)=rescale(FlowbyCell(:,7:end),'InputMin',min(FlowbyCell{:,7:end}),'InputMax',max(FlowbyCell{:,7:end}));
-
 FlowbyCell.FSC_A=FlowbyCell{:,10};
 FlowbyCell.SSC_A=10000.*FlowbyCell{:,86};
-
-
-FCSOutData2=table2array(FlowbyCell);
-FCSOutData2(isnan(FCSOutData2))=0;
-
-FCSOutData2(:,7:end)=(2^19).*rescale(FCSOutData2(:,7:end),'InputMin',min(FCSOutData2(:,7:end)),'InputMax',max(FCSOutData2(:,7:end)));
-FCSOutData2(isnan(FCSOutData2))=0;
-FCSOutData2(:,7:end)=FCSOutData2(:,7:end)+1;
-FCSOutData=(double(round(FCSOutData2)));
+FlowbyCell.FSC_A(FlowbyCell.FSC_A<=1)=1;
+FlowbyCell.SSC_A(FlowbyCell.SSC_A<=1)=1;
+FCSOutData=table2array(FlowbyCell);
+FCSOutData(isnan(FCSOutData))=0;
+FCSOutData=double(FCSOutData);
 WellColumn=FCSOutData(:,2);
 % TimeColumn=FCSOutData(:,3);
 
@@ -91,25 +85,24 @@ mkdir(FCSFolder)
 
     for i=unique(WellColumn)'
             
-            WellPoint = num2str(i,'%03.f');
+%             WellPoint = num2str(i,'%03.f');
             CurrWell=FCSOutData(FCSOutData(:,2)==i,:);
             TimeColumn=CurrWell(:,3);
         for j=unique(TimeColumn)'
-                Timepoint = num2str(j,'%03.f'); %Creates a string so that the BioFormats can read it
-                CurrTime=double(CurrWell(TimeColumn==j,:));
-%                 maxdata(:,j)=max(CurrTime);
-%                 ExportedTimeData(j)={CurrTime};
-                WellID=strcat('w',WellPoint,'t',Timepoint);
-                FCSFileName=strcat(FCSFolder,WellID,'.fcs') ; 
-                TEXT.WELLID=WellID;
-                TEXT.FIL=WellID;
-                TEXT.COM=WellID;
-                writeFCS(FCSFileName,CurrTime,TEXT); 
-            
-%         AllMaxes(i)={maxdata};
+                 Timepoint = num2str(j,'%03.f'); %Creates a string so that the BioFormats can read it
+                 CurrTime=double(CurrWell(TimeColumn==j,:));
+                 maxdata(:,j)=(max(CurrTime))';
+%                 WellID=strcat('w',WellPoint,'t',Timepoint);
+%                 FCSFileName=strcat(FCSFolder,WellID,'.fcs') ; 
+%                 TEXT.WELLID=WellID;
+%                 TEXT.FIL=WellID;
+%                 TEXT.COM=WellID;
+%                 writeFCS(FCSFileName,CurrTime,TEXT); 
+          
+    
+        AllMaxes(i)={maxdata};
         end
-%         ExportedWellData(i)={ExportedTimeData};
-%         clear maxdata ExportedTimeData
+        clear maxdata
         
     end
 end
