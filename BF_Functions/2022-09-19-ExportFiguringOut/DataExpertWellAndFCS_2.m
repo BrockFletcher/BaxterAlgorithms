@@ -1,4 +1,4 @@
-clear all
+
 load('untitled.mat')
 
 %% User Inputs

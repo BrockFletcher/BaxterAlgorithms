@@ -3,10 +3,11 @@ function [Nuc_bw4,Nuc_bw4_perim,NucLabel,Data] = Nuc_ConsiderCyt(Img,AnaSettings
 %   Detailed explanation goes here
            %Import Settings
             NucTophatDisk=strel('disk',round(50*(0.34/MiPerPix)));
-            NucOpenDisk= strel('disk',round(4*(0.34/MiPerPix)));
-            NucErodeDisk=strel('diamond',round(6*(0.34/MiPerPix)));
+            NucOpenDisk= strel('disk',round(5*(0.34/MiPerPix)));
+            NucErodeDisk=strel('diamond',round(7*(0.34/MiPerPix)));
             NucErodeDisk2=strel('square',round(8*(0.34/MiPerPix)));
-            NucCloseDisk=strel('disk',round(4*(0.34/MiPerPix)));    
+            NucCloseDisk=strel('disk',round(5*(0.34/MiPerPix)));
+            NucCloseDisk2=strel('disk',round(2*(0.34/MiPerPix)));
             Low=AnaSettings{1};
             Max=AnaSettings{4};
             Scaling=AnaSettings{3};
@@ -40,6 +41,7 @@ function [Nuc_bw4,Nuc_bw4_perim,NucLabel,Data] = Nuc_ConsiderCyt(Img,AnaSettings
         Nuc_bw1=bwareaopen(Nuc_bw1, 250);
         Nuc_bw2=imerode(Nuc_bw1,NucErodeDisk);
         Nuc_bw2=imerode(Nuc_bw2,NucErodeDisk2);
+        Nuc_bw1=imclose(Nuc_bw2, NucCloseDisk2);
         GaussNuc=imgaussfilt(NucOpen,8);
         GaussNuc(~Nuc_bw2)=0;
 

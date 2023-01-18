@@ -47,12 +47,12 @@ for AnaPass=1:length(LiveData)
         [stats.Cell]=deal(CellBody2{:});
         [stats.AnaPass]=deal(AnaPass);
         [stats.ImgPlane]=deal(ImgPlane);
-        [stats.AnaProgram]=deal(AnaFunct);
+%         [stats.AnaProgram]=deal(AnaFunct);
         Data=struct2table(stats);
         if ~exist('TidyFeat','var')
             TidyFeat=Data;
         else 
-            TidyFeat=vertcat(TidyFeat,Data);
+             TidyFeat=vertcat(TidyFeat,Data);
         end
         
       end

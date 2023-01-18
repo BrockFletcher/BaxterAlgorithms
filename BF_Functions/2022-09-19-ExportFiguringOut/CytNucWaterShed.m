@@ -8,7 +8,7 @@ function [bw4,Cyt_WS_perim,Cyt_WS,Data] = CytNucWaterShed(Nuc_bw4,Cyt,cyt_bw4,An
     border(2:end-1,2:end-1) = 0;
       
 %     n_maxs=imerode(Nuc_bw4,strel('disk',2));
-    n_maxs=Nuc_bw4;
+    n_maxs=imdilate(Nuc_bw4,strel('disk',10));
 %     n_maxs=bwareaopen(n_maxs,50);
     cyt_bw4 = cyt_bw4 | Nuc_bw4;
      
@@ -17,6 +17,7 @@ function [bw4,Cyt_WS_perim,Cyt_WS,Data] = CytNucWaterShed(Nuc_bw4,Cyt,cyt_bw4,An
     h_c=imcomplement(h);
 %      h_c(n_maxs)=0;
     h_c_min=imimposemin(h_c, n_maxs);
+
 % %     h_c_min=imhmin(h_c,Sensitivity);
 %      h_c_min=imimposemin(h, n_maxs);
 %     h(n_maxs)=0;
@@ -27,7 +28,8 @@ function [bw4,Cyt_WS_perim,Cyt_WS,Data] = CytNucWaterShed(Nuc_bw4,Cyt,cyt_bw4,An
     borderInverse=~border;
     L_n(~borderInverse) = 0;
     howdy=L_n;
-    Cyt_WS=uint16(bwlabel(imfill((howdy),4,'holes')));
+%     Cyt_WS=uint16(bwlabel(imfill((howdy),8,'holes')));
+     Cyt_WS=uint16(bwlabel(howdy));
     bw4=imbinarize(Cyt_WS);
     Cyt_WS_perim = imdilate(bwperim(Cyt_WS),strel('disk',1));
      rgb=label2rgb(Cyt_WS);
